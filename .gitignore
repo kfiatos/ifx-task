@@ -1,0 +1,5 @@
+vendor
+*.cache
+docker/mysql8/data
+var/
+.idea

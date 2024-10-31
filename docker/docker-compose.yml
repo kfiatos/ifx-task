@@ -1,0 +1,53 @@
+networks:
+  docker_network:
+    ipam:
+      config:
+        - subnet: 192.168.5.0/24
+
+services:
+  nginx:
+    container_name: 'app_nginx'
+    build: './nginx'
+    ports:
+      - '80:80'
+      - '443:443'
+    networks:
+      docker_network:
+        ipv4_address: 192.168.5.2
+    volumes:
+      - '../:/data/work/app/'
+      - './nginx/logs/:/var/log/nginx/logs/'
+      - './nginx/sites/:/etc/nginx/conf.d/'
+      - './nginx/ssl/:/etc/nginx/certs'
+    environment:
+      TZ: 'Europe/Warsaw'
+  php83:
+    container_name: 'app_php83'
+    build: './php83'
+    networks:
+        docker_network:
+            ipv4_address: 192.168.5.203
+    volumes:
+      - '../:/data/work/app/'
+      - './php83/www2.conf:/usr/local/etc/php-fpm.d/www2.conf'
+      - './php83/php.ini:/usr/local/etc/php/conf.d/docker.ini'
+    environment:
+      TZ: 'Europe/Warsaw'
+  mysql:
+    container_name: 'app_mysql8'
+    image: mysql:8.4
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      TZ: 'Europe/Warsaw'
+    ports:
+      - '3306:3306'
+    networks:
+      docker_network:
+        ipv4_address: 192.168.5.100
+    volumes:
+      - './:/data/work/'
+      - './mysql8/data/:/var/lib/mysql'
+    command: --mysql-native-password=ON #--default-authentication-plugin=mysql_native_password
+
+
